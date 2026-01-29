@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  STUDENT
+  ORGANIZER
+}
+
+enum EventCategory {
+  TECHNICAL
+  CULTURAL
+  SPORTS
+  OTHER
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  role          UserRole  @default(STUDENT)
+  department    String?
+  year          String?
+  collegeId     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  organizedEvents Event[]   @relation("OrganizerEvents")
+  registrations   Registration[]
+}
+
+model Event {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  dateTime    DateTime
+  venue       String
+  capacity    Int
+  category    EventCategory
+  imageUrl    String?
+  deadline    DateTime?
+  organizerId String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  organizer     User           @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  registrations Registration[]
+}
+
+model Registration {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  qrCode    String   @unique // Unique token for QR code
+  attended  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId]) // Prevent duplicate registration
+}
