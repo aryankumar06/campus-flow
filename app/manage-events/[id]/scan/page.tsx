@@ -87,7 +87,7 @@ export default function ScanPage({ params }: { params: { id: string } }) {
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-2">Scan Attendance</h1>
         <p className="text-muted-foreground">
-          Point the camera at the student’s QR code ticket
+          Point the camera at the student&#39;s QR code ticket
         </p>
       </div>
 

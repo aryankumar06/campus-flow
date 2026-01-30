@@ -19,42 +19,36 @@ export function Navbar() {
   const user = session?.user;
 
   return (
-    <nav className="border-b">
+    <nav className="border-b bg-background/80 backdrop-blur">
       <div className="flex h-16 items-center px-4 container mx-auto">
-        <Link href="/" className="font-bold text-2xl mr-6">
+        <Link href="/" className="font-bold text-2xl mr-6 no-underline text-foreground">
           CollegeEvents
         </Link>
         <div className="flex items-center space-x-4 lg:space-x-6 mx-6">
           <Link
             href="/events"
-            className="text-sm font-medium transition-colors hover:text-primary"
+            className="text-sm font-medium transition-colors text-muted-foreground hover:text-primary no-underline"
           >
-            Browse Events
+            Events
           </Link>
-          {user && (
-            <Link
-              href="/my-events"
-              className="text-sm font-medium transition-colors hover:text-primary"
-            >
-              My Events
-            </Link>
-          )}
-          {user?.role === "ORGANIZER" && (
-            <>
-              <Link
-                href="/create-event"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                Create Event
-              </Link>
-              <Link
-                href="/manage-events"
-                className="text-sm font-medium transition-colors hover:text-primary"
-              >
-                Manage Events
-              </Link>
-            </>
-          )}
+          <Link
+            href="/academics"
+            className="text-sm font-medium transition-colors text-muted-foreground hover:text-primary no-underline"
+          >
+            Academics
+          </Link>
+          <Link
+            href="/community"
+            className="text-sm font-medium transition-colors text-muted-foreground hover:text-primary no-underline"
+          >
+            Community
+          </Link>
+          <Link
+            href="/activity"
+            className="text-sm font-medium transition-colors text-muted-foreground hover:text-primary no-underline"
+          >
+            Activity Hub
+          </Link>
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <ModeToggle />
@@ -78,6 +72,20 @@ export function Navbar() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/my-events">My Events</Link>
+                </DropdownMenuItem>
+                {user?.role === "ORGANIZER" && (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href="/create-event">Create Event</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/manage-events">Manage Events</Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => signOut()}>
                   Log out
                 </DropdownMenuItem>
@@ -86,10 +94,10 @@ export function Navbar() {
           ) : (
             <div className="flex items-center space-x-2">
               <Link href="/login">
-                <Button variant="ghost">Login</Button>
+                <Button variant="ghost" className="no-underline">Login</Button>
               </Link>
               <Link href="/signup">
-                <Button>Sign Up</Button>
+                <Button className="no-underline">Sign Up</Button>
               </Link>
             </div>
           )}

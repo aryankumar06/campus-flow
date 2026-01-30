@@ -43,24 +43,34 @@ export async function POST(req: Request) {
     }
 
     if (registration.eventId !== eventId) {
-        return NextResponse.json(
-            { error: "Ticket is for a different event" },
-            { status: 400 }
-        );
+      return NextResponse.json(
+        { error: "Ticket is for a different event" },
+        { status: 400 }
+      );
     }
 
     if (registration.attended) {
-        return NextResponse.json(
-            { error: "Already marked as attended", studentName: registration.user.name },
-            { status: 409 }
-        );
+      return NextResponse.json(
+        { error: "Already marked as attended", studentName: registration.user.name },
+        { status: 409 }
+      );
     }
 
-    // Mark attendance
-    await db.registration.update({
-      where: { id: registration.id },
-      data: { attended: true },
-    });
+    // Mark attendance and award credits
+    await db.$transaction([
+      db.registration.update({
+        where: { id: registration.id },
+        data: { attended: true },
+      }),
+      db.activityCredit.create({
+        data: {
+          userId: registration.userId,
+          type: "ATTENDANCE",
+          points: 1,
+          reason: `Attended: ${event.title}`,
+        }
+      })
+    ]);
 
     return NextResponse.json({
       success: true,

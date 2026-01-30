@@ -25,7 +25,9 @@ const formSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export default function LoginPage() {
+import { Suspense } from "react";
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -119,5 +121,13 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center h-[80vh]">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

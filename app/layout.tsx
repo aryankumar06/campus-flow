@@ -5,6 +5,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { SessionProvider } from '@/components/session-provider';
 import { Navbar } from '@/components/navbar';
+import { Footer } from '@/components/ui/footer-section';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -30,9 +31,12 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Navbar />
-            <main className="container mx-auto py-6 px-4 min-h-[calc(100vh-4rem)]">
-              {children}
+            <main className="min-h-[calc(100vh-4rem)]">
+              <div className="container mx-auto py-6 px-4">
+                {children}
+              </div>
             </main>
+            <Footer />
             <Toaster />
           </ThemeProvider>
         </SessionProvider>

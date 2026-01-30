@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TicketCard } from "@/components/events/ticket-card";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,11 +9,7 @@ export default function MyEventsPage() {
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchMyEvents();
-  }, []);
-
-  const fetchMyEvents = async () => {
+  const fetchMyEvents = useCallback(async () => {
     try {
       const res = await fetch("/api/my-events");
       if (!res.ok) throw new Error("Failed to fetch");
@@ -28,7 +24,11 @@ export default function MyEventsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchMyEvents();
+  }, [fetchMyEvents]);
 
   return (
     <div className="space-y-6">
@@ -43,7 +43,17 @@ export default function MyEventsPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {registrations.map((registration) => (
-            <TicketCard key={registration.id} registration={registration} />
+            <TicketCard
+              key={registration.id}
+              registration={registration}
+              onCanceled={(id) => {
+                setRegistrations((prev) =>
+                  prev.map((r) =>
+                    r.id === id ? { ...r, canceledAt: new Date().toISOString() } : r
+                  )
+                );
+              }}
+            />
           ))}
         </div>
       )}

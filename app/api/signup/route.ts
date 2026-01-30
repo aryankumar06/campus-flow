@@ -10,12 +10,16 @@ const userSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
+  role: z.enum(["STUDENT", "ORGANIZER"]).default("STUDENT"),
+  collegeId: z.string().optional(),
+  department: z.string().optional(),
+  year: z.string().optional(),
 });
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, email, password } = userSchema.parse(body);
+    const { name, email, password, role, collegeId, department, year } = userSchema.parse(body);
 
     const existingUser = await db.user.findUnique({
       where: { email },
@@ -35,6 +39,10 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
+        role: role,
+        collegeId,
+        department,
+        year,
       },
     });
 
@@ -42,10 +50,10 @@ export async function POST(req: Request) {
 
     // Send welcome email
     try {
-        const { sendWelcomeEmail } = await import("@/lib/email");
-        await sendWelcomeEmail(email, name);
+      const { sendWelcomeEmail } = await import("@/lib/email");
+      await sendWelcomeEmail(email, name);
     } catch (emailError) {
-        console.error("Failed to send welcome email:", emailError);
+      console.error("Failed to send welcome email:", emailError);
     }
 
     return NextResponse.json(

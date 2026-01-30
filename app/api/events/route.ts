@@ -27,21 +27,34 @@ export async function POST(req: Request) {
       return new NextResponse("Missing required fields", { status: 400 });
     }
 
-    const event = await db.event.create({
-      data: {
-        title,
-        description,
-        dateTime: new Date(dateTime),
-        venue,
-        capacity: parseInt(capacity),
-        category,
-        imageUrl,
-        deadline: deadline ? new Date(deadline) : null,
-        organizerId: (session.user as any).id,
-      },
+    const result = await db.$transaction(async (tx: any) => {
+      const event = await tx.event.create({
+        data: {
+          title,
+          description,
+          dateTime: new Date(dateTime),
+          venue,
+          capacity: parseInt(capacity),
+          category,
+          imageUrl,
+          deadline: deadline ? new Date(deadline) : null,
+          organizerId: (session.user as any).id,
+        },
+      });
+
+      await tx.activityCredit.create({
+        data: {
+          userId: (session.user as any).id,
+          type: "ORGANIZE",
+          points: 3,
+          reason: `Organized: ${title}`,
+        }
+      });
+
+      return event;
     });
 
-    return NextResponse.json(event);
+    return NextResponse.json(result);
   } catch (error) {
     console.error("[EVENTS_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });

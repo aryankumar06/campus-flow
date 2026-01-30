@@ -17,6 +17,14 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   email: z.string().min(1, "Email is required").email("Invalid email"),
@@ -24,6 +32,10 @@ const formSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(8, "Password must be at least 8 characters"),
+  role: z.enum(["STUDENT", "ORGANIZER"]),
+  collegeId: z.string().min(1, "Roll number is required"),
+  department: z.string().min(1, "Department is required"),
+  year: z.string().min(1, "Year is required"),
 });
 
 export default function SignupPage() {
@@ -35,6 +47,10 @@ export default function SignupPage() {
       name: "",
       email: "",
       password: "",
+      role: "STUDENT",
+      collegeId: "",
+      department: "",
+      year: "",
     },
   });
 
@@ -73,7 +89,7 @@ export default function SignupPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-card">
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create an Account</h1>
           <p className="text-muted-foreground">Sign up to get started</p>
@@ -123,12 +139,78 @@ export default function SignupPage() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>I am a</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a role" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="STUDENT">Student</SelectItem>
+                      <SelectItem value="ORGANIZER">Organizer</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {form.watch("role") === "STUDENT" && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="collegeId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>University Roll No.</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 202201" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. CSE" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="year"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Graduation Year</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. 2026" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
             <Button className="w-full" type="submit">
               Sign Up
             </Button>
           </form>
         </Form>
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Already have an account?{" "}
           <Link href="/login" className="text-blue-600 hover:underline">
             Sign in

@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
@@ -30,12 +29,16 @@ model User {
   role          UserRole  @default(STUDENT)
   department    String?
   year          String?
-  collegeId     String?
+  collegeId     String?   // University Roll Number
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   organizedEvents Event[]   @relation("OrganizerEvents")
   registrations   Registration[]
+  submissions     Submission[]
+  clubMemberships ClubMember[]
+  activityCredits ActivityCredit[]
+  complaints      Complaint[]
 }
 
 model Event {
@@ -49,6 +52,7 @@ model Event {
   imageUrl    String?
   deadline    DateTime?
   organizerId String
+  isRecurring Boolean       @default(false)
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 
@@ -60,12 +64,114 @@ model Registration {
   id        String   @id @default(cuid())
   userId    String
   eventId   String
-  qrCode    String   @unique // Unique token for QR code
+  qrCode    String   @unique
   attended  Boolean  @default(false)
   createdAt DateTime @default(now())
 
   user  User  @relation(fields: [userId], references: [id])
   event Event @relation(fields: [eventId], references: [id])
 
-  @@unique([userId, eventId]) // Prevent duplicate registration
+  @@unique([userId, eventId])
 }
+
+// --- ACADEMIC TOOLS ---
+
+model Assignment {
+  id          String       @id @default(cuid())
+  title       String
+  description String
+  dueDate     DateTime
+  facultyId   String
+  department  String
+  createdAt   DateTime     @default(now())
+  submissions Submission[]
+}
+
+model Submission {
+  id           String     @id @default(cuid())
+  assignmentId String
+  userId       String
+  fileUrl      String
+  submittedAt  DateTime   @default(now())
+  
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  user         User       @relation(fields: [userId], references: [id])
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  title      String
+  subject    String
+  fileUrl    String
+  uploadedBy String
+  createdAt  DateTime @default(now())
+}
+
+// --- COMMUNITIES & CLUBS ---
+
+model Club {
+  id            String         @id @default(cuid())
+  name          String
+  description   String
+  adminId       String
+  announcements Announcement[]
+  members       ClubMember[]
+}
+
+model ClubMember {
+  id     String @id @default(cuid())
+  clubId String
+  userId String
+  role   String @default("MEMBER") // MEMBER, SUB_ADMIN
+
+  club Club @relation(fields: [clubId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  tier      String   // COLLEGE, CLUB, COMMUNITY
+  clubId    String?
+  createdAt DateTime @default(now())
+
+  club Club? @relation(fields: [clubId], references: [id])
+}
+
+// --- ACTIVITY TRACKING ---
+
+model ActivityCredit {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // ATTENDANCE, ORGANIZE, VOLUNTEER, WORKSHOP
+  points    Int
+  reason    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+// --- SPECIALIZED FEATURES ---
+
+model CodingDuel {
+  id        String   @id @default(cuid())
+  title     String
+  link      String
+  winnerId  String?
+  endTime   DateTime
+  createdAt DateTime @default(now())
+}
+
+model Complaint {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String   // ACADEMICS, INFRASTRUCTURE, HARASSMENT
+  content     String
+  isAnonymous Boolean  @default(true)
+  status      String   @default("PENDING") // PENDING, RESOLVED
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
