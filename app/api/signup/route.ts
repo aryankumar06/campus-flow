@@ -40,6 +40,7 @@ export async function POST(req: Request) {
         email,
         password: hashedPassword,
         role: role,
+        isApproved: role === "ORGANIZER" ? false : true,
         collegeId,
         department,
         year,

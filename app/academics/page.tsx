@@ -18,17 +18,19 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
 export default function AcademicsPage() {
-  const [attendance, setAttendance] = useState(72); // Hardcoded for now, can be calculated later
+  const [attendance, setAttendance] = useState(0);
   const [upcomingAssignments, setUpcomingAssignments] = useState<any[]>([]);
   const [totalCredits, setTotalCredits] = useState(0);
+  const [examAlert, setExamAlert] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [assignRes, creditRes] = await Promise.all([
+        const [assignRes, creditRes, statsRes] = await Promise.all([
           fetch("/api/academics/assignments"),
-          fetch("/api/activity/credits")
+          fetch("/api/activity/credits"),
+          fetch("/api/academics/stats")
         ]);
         
         if (assignRes.ok) {
@@ -39,6 +41,12 @@ export default function AcademicsPage() {
         if (creditRes.ok) {
           const data = await creditRes.json();
           setTotalCredits(data.totalPoints);
+        }
+
+        if (statsRes.ok) {
+          const data = await statsRes.json();
+          setAttendance(data.attendance);
+          setExamAlert(data.alert);
         }
       } catch (error) {
         console.error("Failed to fetch academics data", error);
@@ -79,7 +87,7 @@ export default function AcademicsPage() {
             <Progress value={attendance} className={attendance < 75 ? "bg-red-200" : ""} />
             <p className="text-xs text-muted-foreground mt-2">
               {attendance < 75 
-                ? "Warning: Below 75% threshold. You need to attend 5 more classes." 
+                ? "Warning: Below 75% threshold." 
                 : "You are doing great! Keep it up."}
             </p>
           </CardContent>
@@ -91,25 +99,29 @@ export default function AcademicsPage() {
             <CardTitle className="text-sm font-medium flex items-center">
               <Bell className="h-4 w-4 mr-2" /> Exam Alerts
             </CardTitle>
-            <CardTitle className="text-xl">PT-2 Starts Feb 15</CardTitle>
+            <CardTitle className="text-xl">
+                {examAlert ? examAlert.title : "No Upcoming Exams"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground">Detailed schedule will be released by Saturday.</p>
-            <Button variant="link" className="p-0 h-auto text-xs mt-2">View Full Calendar</Button>
+            <p className="text-xs text-muted-foreground">
+                {examAlert ? `Date: ${new Date(examAlert.date).toLocaleDateString()}` : "Check back later for schedule updates."}
+            </p>
+            {examAlert && <Button variant="link" className="p-0 h-auto text-xs mt-2">View Full Calendar</Button>}
           </CardContent>
         </Card>
 
-        {/* Study Credits */}
+        {/* Study Credits (Could be GPA related) */}
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center">
-              <TrendingUp className="h-4 w-4 mr-2" /> Study Credits
+              <TrendingUp className="h-4 w-4 mr-2" /> SGPA Trend
             </CardTitle>
-            <CardTitle className="text-3xl">12 / 24</CardTitle>
+            <CardTitle className="text-3xl">8.4 / 10</CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={50} />
-            <p className="text-xs text-muted-foreground mt-2">50% of semester credits earned.</p>
+            <Progress value={84} />
+            <p className="text-xs text-muted-foreground mt-2">Previous Semester: 8.2</p>
           </CardContent>
         </Card>
       </div>
@@ -125,26 +137,32 @@ export default function AcademicsPage() {
           </div>
           
           <div className="grid gap-4">
-            {upcomingAssignments.map((assignment) => (
-              <Card key={assignment.id} className="group hover:border-primary transition-colors">
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={assignment.priority === "high" ? "p-2 rounded bg-red-100 text-red-600" : "p-2 rounded bg-zinc-100 text-zinc-600"}>
-                      <Clock className="w-5 h-5" />
+            {upcomingAssignments.length > 0 ? (
+                upcomingAssignments.map((assignment) => (
+                <Card key={assignment.id} className="group hover:border-primary transition-colors">
+                    <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="p-2 rounded bg-zinc-100 text-zinc-600">
+                        <Clock className="w-5 h-5" />
+                        </div>
+                        <div>
+                        <h3 className="font-medium">{assignment.title}</h3>
+                        <p className="text-sm text-muted-foreground">{assignment.subject} • Due {new Date(assignment.dueDate).toLocaleDateString()}</p>
+                        </div>
                     </div>
-                    <div>
-                      <h3 className="font-medium">{assignment.title}</h3>
-                      <p className="text-sm text-muted-foreground">{assignment.subject} • Due {assignment.dueDate}</p>
-                    </div>
-                  </div>
-                  <Link href={`/academics/assignments/${assignment.id}`}>
-                    <Button size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      Submit <Upload className="w-4 h-4 ml-2" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
+                    <Link href={`/academics/assignments/${assignment.id}`}>
+                        <Button size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        Submit <Upload className="w-4 h-4 ml-2" />
+                        </Button>
+                    </Link>
+                    </CardContent>
+                </Card>
+                ))
+            ) : (
+                <div className="text-center py-10 text-muted-foreground border rounded-lg bg-zinc-50 border-dashed">
+                    No pending assignments.
+                </div>
+            )}
           </div>
 
           <div className="pt-4">
@@ -193,15 +211,9 @@ export default function AcademicsPage() {
               <CardDescription className="text-zinc-400">Available slots for today</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between items-center text-sm">
-                <span>Dr. Sharma (DS)</span>
-                <Badge variant="secondary">2:00 PM</Badge>
+              <div className="text-center py-4 text-zinc-500 text-sm">
+                 No faculty slots available right now.
               </div>
-              <div className="flex justify-between items-center text-sm">
-                <span>Prof. Verma (AI)</span>
-                <Badge variant="secondary">4:30 PM</Badge>
-              </div>
-              <Button className="w-full mt-2 bg-white text-black hover:bg-zinc-200">Book Now</Button>
             </CardContent>
           </Card>
         </div>

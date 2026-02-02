@@ -41,6 +41,10 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid credentials");
         }
 
+        if (!user.isApproved) {
+          throw new Error("Account pending approval");
+        }
+
         return {
           id: user.id,
           name: user.name,

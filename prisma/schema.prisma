@@ -12,6 +12,7 @@ datasource db {
 enum UserRole {
   STUDENT
   ORGANIZER
+  ADMIN
 }
 
 enum EventCategory {
@@ -27,6 +28,7 @@ model User {
   email         String    @unique
   password      String
   role          UserRole  @default(STUDENT)
+  isApproved    Boolean   @default(true)
   department    String?
   year          String?
   collegeId     String?   // University Roll Number
@@ -39,6 +41,28 @@ model User {
   clubMemberships ClubMember[]
   activityCredits ActivityCredit[]
   complaints      Complaint[]
+  attendance      Float     @default(0) // Percentage
+  badges          Badge[]
+}
+
+model Badge {
+  id        String   @id @default(cuid())
+  name      String
+  description String
+  icon      String   // zap, star, trophy
+  earnedAt  DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Alert {
+  id        String   @id @default(cuid())
+  title     String
+  message   String?
+  date      DateTime
+  type      String   // EXAM, DEADLINE, GENERAL
+  target    String   // ALL, STUDENT, FACULTY
+  createdAt DateTime @default(now())
 }
 
 model Event {
@@ -113,6 +137,7 @@ model Club {
   id            String         @id @default(cuid())
   name          String
   description   String
+  category      String   @default("GENERAL") // TECHNICAL, CULTURAL, SPORTS
   adminId       String
   announcements Announcement[]
   members       ClubMember[]

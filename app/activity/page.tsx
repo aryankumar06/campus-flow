@@ -31,35 +31,46 @@ export default function ActivityHubPage() {
   const [totalCredits, setTotalCredits] = useState(0);
   const [semesterGoal, setSemesterGoal] = useState(30);
   const [activities, setActivities] = useState<any[]>([]);
+  const [badges, setBadges] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    attendancePoints: 0,
+    organizingPoints: 0,
+    volunteerPoints: 0,
+    eventsAttended: 0,
+    volunteerHours: 0
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCredits = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch("/api/activity/credits");
-        if (res.ok) {
-          const data = await res.json();
+        const [creditsRes, statsRes] = await Promise.all([
+          fetch("/api/activity/credits"),
+          fetch("/api/activity/stats")
+        ]);
+
+        if (creditsRes.ok) {
+          const data = await creditsRes.json();
           setActivities(data.credits);
           setTotalCredits(data.totalPoints);
         }
+
+        if (statsRes.ok) {
+          const data = await statsRes.json();
+          setBadges(data.badges);
+          setStats(data.stats);
+        }
       } catch (error) {
-        console.error("Failed to fetch credits", error);
+        console.error("Failed to fetch activity data", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCredits();
+    fetchData();
   }, []);
 
   if (loading) return <div className="h-screen flex items-center justify-center">Loading Activity Hub...</div>;
-
-
-  const badges = [
-    { id: "1", name: "Alpha Organizer", icon: Zap, color: "text-amber-500", bg: "bg-amber-500/10" },
-    { id: "2", name: "Consistent Peer", icon: CheckCircle2, color: "text-blue-500", bg: "bg-blue-500/10" },
-    { id: "3", name: "Community Star", icon: Star, color: "text-purple-500", bg: "bg-purple-500/10" },
-  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -88,15 +99,15 @@ export default function ActivityHubPage() {
                     <div className="grid grid-cols-3 gap-2 text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
                         <div className="flex flex-col">
                             <span>Attendance</span>
-                            <span className="text-foreground text-sm">6 pts</span>
+                            <span className="text-foreground text-sm">{stats.attendancePoints} pts</span>
                         </div>
                         <div className="flex flex-col border-l pl-2">
                             <span>Organizing</span>
-                            <span className="text-foreground text-sm">9 pts</span>
+                            <span className="text-foreground text-sm">{stats.organizingPoints} pts</span>
                         </div>
                         <div className="flex flex-col border-l pl-2">
                             <span>Volunteering</span>
-                            <span className="text-foreground text-sm">3 pts</span>
+                            <span className="text-foreground text-sm">{stats.volunteerPoints} pts</span>
                         </div>
                     </div>
                 </div>
@@ -107,11 +118,11 @@ export default function ActivityHubPage() {
         <Card className="bg-primary/5 border-primary/20">
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Events Attended</CardTitle>
-                <CardTitle className="text-3xl">12</CardTitle>
+                <CardTitle className="text-3xl">{stats.eventsAttended}</CardTitle>
             </CardHeader>
             <CardContent>
                 <p className="text-xs text-muted-foreground flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-1 text-green-500" /> +2 this month
+                    <TrendingUp className="w-3 h-3 mr-1 text-green-500" /> +{stats.eventsAttended} this month
                 </p>
             </CardContent>
         </Card>
@@ -119,10 +130,10 @@ export default function ActivityHubPage() {
         <Card>
             <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium">Volunteer Hours</CardTitle>
-                <CardTitle className="text-3xl">24h</CardTitle>
+                <CardTitle className="text-3xl">{stats.volunteerHours}h</CardTitle>
             </CardHeader>
             <CardContent>
-                <p className="text-xs text-muted-foreground">Across 4 major campaigns.</p>
+                <p className="text-xs text-muted-foreground">Across various campaigns.</p>
             </CardContent>
         </Card>
       </div>
@@ -149,7 +160,8 @@ export default function ActivityHubPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {activities.map((act) => (
+                            {activities.length > 0 ? (
+                                activities.map((act) => (
                                 <TableRow key={act.id}>
                                     <TableCell className="font-medium">{act.reason}</TableCell>
                                     <TableCell>
@@ -158,7 +170,14 @@ export default function ActivityHubPage() {
                                     <TableCell className="text-sm text-muted-foreground">{new Date(act.createdAt).toLocaleDateString()}</TableCell>
                                     <TableCell className="text-right font-bold text-primary">+{act.points}</TableCell>
                                 </TableRow>
-                            ))}
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
+                                        No participation history found.
+                                    </TableCell>
+                                </TableRow>
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>
@@ -212,25 +231,31 @@ export default function ActivityHubPage() {
                     <CardDescription>Badges earned for your contributions.</CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-6 px-6">
-                    {badges.map((badge) => (
+                    {badges.length > 0 ? (
+                        badges.map((badge) => (
                         <div key={badge.id} className="flex gap-4 items-center group cursor-pointer">
-                            <div className={`${badge.bg} ${badge.color} p-3 rounded-xl transition-all group-hover:scale-110`}>
-                                <badge.icon className="h-6 w-6" />
+                            <div className={`bg-primary/10 text-primary p-3 rounded-xl transition-all group-hover:scale-110`}>
+                                <Trophy className="h-6 w-6" />
                             </div>
                             <div>
                                 <h3 className="font-bold">{badge.name}</h3>
-                                <p className="text-xs text-muted-foreground">Unlocked on Jan 14</p>
+                                <p className="text-xs text-muted-foreground">Unlocked on {new Date(badge.earnedAt).toLocaleDateString()}</p>
                             </div>
                         </div>
-                    ))}
+                        ))
+                    ) : (
+                        <div className="text-center py-4 text-muted-foreground text-sm">
+                            No badges earned yet. Participate in events to unlock!
+                        </div>
+                    )}
                     
                     <div className="pt-4 border-t border-dashed">
                         <CardDescription className="mb-2">Next Milestone</CardDescription>
                         <div className="flex justify-between text-xs mb-1 font-medium">
                             <span>Global Volunteer</span>
-                            <span>48 / 50 hrs</span>
+                            <span>{stats.volunteerHours} / 50 hrs</span>
                         </div>
-                        <Progress value={96} className="h-1.5" />
+                        <Progress value={(stats.volunteerHours / 50) * 100} className="h-1.5" />
                     </div>
                 </CardContent>
             </Card>

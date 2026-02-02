@@ -22,6 +22,7 @@ export default function CommunityHubPage() {
   const [clubs, setClubs] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [spotlightClub, setSpotlightClub] = useState<any>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,14 +32,25 @@ export default function CommunityHubPage() {
           fetch("/api/clubs")
         ]);
 
-        if (annonRes.ok) {
-          const data = await annonRes.json();
-          setAnnouncements(data);
-        }
-
         if (clubRes.ok) {
           const data = await clubRes.json();
           setClubs(data);
+          // Calculate Spotlight (Club with most members)
+          if (data.length > 0) {
+            const topClub = data.reduce((prev: any, current: any) => (prev.members > current.members) ? prev : current);
+            setSpotlightClub(topClub);
+          }
+        }
+
+        if (annonRes.ok) {
+          const data = await annonRes.json();
+          // Format announcements
+          const formatted = data.map((item: any) => ({
+            ...item,
+            time: new Date(item.createdAt).toLocaleDateString(),
+            source: item.club ? item.club.name : 'College Admin'
+          }));
+          setAnnouncements(formatted);
         }
       } catch (error) {
         console.error("Failed to fetch community data", error);
@@ -98,16 +110,22 @@ export default function CommunityHubPage() {
               <CardTitle className="text-sm">Club Spotlight</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded bg-primary/20 flex items-center justify-center font-bold text-primary">DS</div>
-                  <div>
-                    <p className="text-sm font-medium">Data Science Soc</p>
-                    <p className="text-xs text-muted-foreground">15 new members</p>
+              {spotlightClub ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded bg-primary/20 flex items-center justify-center font-bold text-primary">
+                        {spotlightClub.name.substring(0, 2).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{spotlightClub.name}</p>
+                        <p className="text-xs text-muted-foreground">{spotlightClub.members} members</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full">View Spotlight</Button>
                   </div>
-                </div>
-                <Button variant="outline" size="sm" className="w-full">View Spotlight</Button>
-              </div>
+              ) : (
+                  <div className="text-sm text-muted-foreground">No clubs trending right now.</div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -129,32 +147,38 @@ export default function CommunityHubPage() {
 
             <TabsContent value="announcements" className="space-y-4">
               <div className="grid gap-4">
-                {announcements.map((item) => (
-                  <Card key={item.id} className={`hover:border-primary transition-all cursor-pointer ${item.tier === 'COLLEGE' ? 'border-l-4 border-l-red-500' : ''}`}>
-                    <CardContent className="p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className={`p-2 rounded-full ${
-                          item.tier === 'COLLEGE' ? 'bg-red-100 text-red-600' : 
-                          item.tier === 'CLUB' ? 'bg-blue-100 text-blue-600' : 
-                          'bg-zinc-100 text-zinc-600'
-                        }`}>
-                          <Megaphone className="w-4 h-4" />
+                {announcements.length > 0 ? (
+                    announcements.map((item) => (
+                    <Card key={item.id} className={`hover:border-primary transition-all cursor-pointer ${item.tier === 'COLLEGE' ? 'border-l-4 border-l-red-500' : ''}`}>
+                        <CardContent className="p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className={`p-2 rounded-full ${
+                            item.tier === 'COLLEGE' ? 'bg-red-100 text-red-600' : 
+                            item.tier === 'CLUB' ? 'bg-blue-100 text-blue-600' : 
+                            'bg-zinc-100 text-zinc-600'
+                            }`}>
+                            <Megaphone className="w-4 h-4" />
+                            </div>
+                            <div>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-[10px] h-4">
+                                {item.tier}
+                                </Badge>
+                                <span className="text-xs text-muted-foreground">{item.time}</span>
+                            </div>
+                            <h3 className="font-semibold text-lg">{item.title}</h3>
+                            <p className="text-sm text-muted-foreground">By {item.source}</p>
+                            </div>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-[10px] h-4">
-                              {item.tier}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">{item.time}</span>
-                          </div>
-                          <h3 className="font-semibold text-lg">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">By {item.source}</p>
-                        </div>
-                      </div>
-                      <ChevronRight className="w-5 h-5 text-muted-foreground" />
-                    </CardContent>
-                  </Card>
-                ))}
+                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                        </CardContent>
+                    </Card>
+                    ))
+                ) : (
+                    <div className="text-center py-10 text-muted-foreground border rounded-lg bg-zinc-50 border-dashed">
+                        No announcements yet.
+                    </div>
+                )}
               </div>
             </TabsContent>
 
@@ -164,30 +188,36 @@ export default function CommunityHubPage() {
                 <Input placeholder="Search for technical, cultural, or sports clubs..." className="pl-9" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {clubs.map((club) => (
-                  <Card key={club.id}>
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <Badge variant="outline">{club.category}</Badge>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Users className="w-3 h-3" /> {club.members}
-                        </span>
-                      </div>
-                      <CardTitle className="text-xl mt-2">{club.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <p className="text-sm text-muted-foreground">The official {club.name} community. Join us to learn and grow together.</p>
-                      <div className="flex gap-2">
-                        <Button variant={club.isJoined ? "outline" : "default"} className="flex-1">
-                          {club.isJoined ? "View Updates" : "Join Club"}
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <Info className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                {clubs.length > 0 ? (
+                    clubs.map((club) => (
+                    <Card key={club.id}>
+                        <CardHeader className="pb-2">
+                        <div className="flex justify-between items-start">
+                            <Badge variant="outline">{club.category}</Badge>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Users className="w-3 h-3" /> {club.members}
+                            </span>
+                        </div>
+                        <CardTitle className="text-xl mt-2">{club.name}</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                        <p className="text-sm text-muted-foreground">{club.description || `The official ${club.name} community. Join us to learn and grow together.`}</p>
+                        <div className="flex gap-2">
+                            <Button variant={club.isJoined ? "outline" : "default"} className="flex-1">
+                            {club.isJoined ? "View Updates" : "Join Club"}
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                            <Info className="w-4 h-4" />
+                            </Button>
+                        </div>
+                        </CardContent>
+                    </Card>
+                    ))
+                ) : (
+                    <div className="col-span-full text-center py-10 text-muted-foreground">
+                        No clubs found.
+                    </div>
+                )}
               </div>
             </TabsContent>
 
