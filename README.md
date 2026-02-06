@@ -5,7 +5,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**CollegeEvents** is a comprehensive, all-in-one platform designed to transform the university experience. It bridges the gap between event management, academic excellence, and community engagement through a modern, gamified interface.
+**CollegeEvents** is a comprehensive, all-in-one platform designed to transform the university experience. It bridges the gap between event management, academic excellence, and community engagement through a modern, gamified interface and more.
 
 ---
 
