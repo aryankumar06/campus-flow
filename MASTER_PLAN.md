@@ -1,80 +1,178 @@
-# Master Implementation Plan: College Event & Academic Platform (CEAP)
+# Master Implementation Plan: College Event & Academic Platform (CEAP) V.101
 
-This plan outlines the roadmap to transform the current prototype into a comprehensive university management and engagement ecosystem.
-
-## Phase 1: Core Event Enhancement & Personalization (Foundation)
-*Focus: Strengthening the "Events" pillar and adding social/personal layers.*
-
-1.  **UX Overhaul**:
-    *   Implement **Swipeable Cards** for event discovery.
-    *   Add **Calendar View** (using `fullcalendar` or `react-day-picker`) for club-specific events.
-2.  **Registration 2.0**:
-    *   Add `customFields` JSON column to `Event` model for dynamic forms.
-    *   Implement "Save to Calendar" (generate `.ics` files).
-3.  **Social Integration**:
-    *   Add `friendsAttending` logic based on department/year matchups.
-    *   Create a **Photo Gallery** for post-event memories (Uploadthing/Cloudinary).
-4.  **Organizing Tools**:
-    *   Attendance certificate generator (Template-based PDF generation).
-    *   Recurring event logic (`isRecurring`, `frequency`).
-
-## Phase 2: Academic Core & Digital Classroom (Utility)
-*Focus: Becoming the daily driver for students via academic tools.*
-
-1.  **Database Expansion**:
-    *   Create `Assignment`, `Course`, and `Submission` models.
-2.  **Assignment Portal**:
-    *   Faculty dashboard to post briefs and due dates.
-    *   Student upload portal with timestamp tracking and history.
-3.  **Exam & Attendance Alerts**:
-    *   Automatic notifications for PT (Periodical Test) and Sessional schedules.
-    *   Attendance dashboard with color-coded "Low Attendance" warnings.
-4.  **Notes Repository**:
-    *   Resource sharing system (Subject-wise folders).
-
-## Phase 3: Community, Communication & Identity (Engagement)
-*Focus: Frictionless communication and verified identity.*
-
-1.  **Verified Registration**:
-    *   Update signup to validate University Roll No. / File No. (Regex or mock DB validation).
-    *   Remove phone number requirement to prioritize privacy as requested.
-2.  **Three-Tier Announcement System**:
-    *   **Tier 1: Admin**: Broadcast to all (Push notifications).
-    *   **Tier 2: Club**: To registered members.
-    *   **Tier 3: Community**: Open discussion threads and Anonymous Q&A.
-3.  **Seating Arrangement Algorithm**:
-    *   Logic to distribute students across Hall/Room based on roll numbers.
-    *   Generate exportable seating charts (PDF/Excel).
-
-## Phase 4: Credit System & Activity Tracking (Gamification)
-*Focus: Turning participation into academic value (The USP).*
-
-1.  **Automated Credit Engine**:
-    *   Implement a worker that adds points upon QR check-in:
-        *   Attended: 1 pt | Organized: 3 pts | Volunteered: 2 pts.
-2.  **Personal Activity Chart**:
-    *   Visual dashboard (Recharts) showing participation history and progress towards semester credit goals.
-3.  **Transcript Generator**:
-    *   Feature to download an official "Extra-Curricular Transcript" for placements.
-
-## Phase 5: Specialized Initiatives & Mentorship (Value-Add)
-*Focus: Career growth and grievance redressal.*
-
-1.  **Coding Hub**:
-    *   Integration with **GitHub API** for contribution tracking.
-    *   **Coding Duels**: Leaderboard-driven weekly challenges.
-2.  **Grievance System**:
-    *   **Anonymous Complaint Routing**: Category-based logic (Academics, Harassment, Infrastructure).
-    *   Status tracking for students without exposing identity to intermediate staff.
-3.  **Mentor Network**:
-    *   Senior-Junior matching algorithm based on department and skills.
-    *   1:1 booking system for career/alumni sessions.
+This roadmap upgrades your current prototype into a full university engagement + academic management ecosystem.
 
 ---
 
-## Technical Stack Adjustments
-*   **Database**: PostgreSQL (Prisma) - *Needs migrations for new models.*
-*   **Storage**: Uploadthing (for notes/photos/assignments).
-*   **Real-time**: Pusher or Socket.io (for announcements/notifications).
-*   **PDF Gen**: `react-pdf` or `puppeteer-core` (for certificates/transcripts).
-*   **Analytics**: `recharts` for dashboards.
+## Phase 1: Core Events + Personalization (Foundation)
+
+**Goal:** Make “Events” addictive, modern, and socially relevant.
+
+### 1) UX Upgrade
+
+* Implement **Swipeable Event Cards** (discovery feed style)
+* Add **Calendar View** for club-specific events
+  *(Recommended: `fullcalendar` or `react-day-picker`)*
+
+### 2) Registration 2.0 (Dynamic Forms)
+
+* Add `customFields` (JSON) inside the `Event` model to support **dynamic registration forms**
+* Implement **Save to Calendar** by generating `.ics` files
+
+### 3) Social Layer
+
+* Add **friendsAttending** logic (based on department + year matching)
+* Create **Post-Event Photo Gallery**
+  *(Uploadthing / Cloudinary)*
+
+### 4) Organizer Tools
+
+* **Attendance Certificate Generator** (template-based PDF generation)
+* **Recurring Events** support
+  Fields: `isRecurring`, `frequency`
+
+---
+
+## Phase 2: Academic Core + Digital Classroom (Utility)
+
+**Goal:** Make CEAP the daily-use app for every student.
+
+### 1) Database Expansion
+
+Add new models:
+
+* `Course`
+* `Assignment`
+* `Submission`
+
+### 2) Assignment Portal
+
+* Faculty dashboard to post:
+
+  * assignment brief
+  * due date
+  * attachments
+* Student portal to:
+
+  * upload submissions
+  * track timestamps
+  * view submission history
+
+### 3) Exams + Attendance Alerts
+
+* Automatic notifications for:
+
+  * PT (Periodical Tests)
+  * Sessionals
+* Attendance dashboard with:
+
+  * subject-wise view
+  * color-coded warnings (Low Attendance)
+
+### 4) Notes Repository
+
+* Subject-wise resource sharing
+* Folder-based structure for clean organization
+
+---
+
+## Phase 3: Community + Communication + Verified Identity (Engagement)
+
+**Goal:** Verified student identity + fast announcements + open community.
+
+### 1) Verified Registration
+
+* Validate **University Roll No / File No**
+  *(Regex validation or mock DB lookup)*
+* Remove phone number requirement (privacy-first)
+
+### 2) Three-Tier Announcement System
+
+* **Tier 1 (Admin):** Broadcast to everyone (push notifications)
+* **Tier 2 (Clubs):** Only to registered members
+* **Tier 3 (Community):**
+
+  * discussion threads
+  * anonymous Q&A
+
+### 3) Seating Arrangement System
+
+* Algorithm to distribute students across halls/rooms using roll numbers
+* Export seating charts:
+
+  * PDF
+  * Excel
+
+---
+
+## Phase 4: Credit System + Activity Tracking (Gamification)
+
+**Goal:** Turn participation into measurable academic value (your USP).
+
+### 1) Automated Credit Engine
+
+* Background worker assigns points after QR check-in:
+
+  * Attended → **1 pt**
+  * Volunteered → **2 pts**
+  * Organized → **3 pts**
+
+### 2) Personal Activity Dashboard
+
+* Charts using **Recharts**
+* Track:
+
+  * participation history
+  * progress toward semester credit targets
+
+### 3) Extra-Curricular Transcript
+
+* Downloadable official-style transcript for placements
+* Auto-generated from credit + event history
+
+---
+
+## Phase 5: Specialized Initiatives + Mentorship (Value-Add)
+
+**Goal:** Career growth + grievance support + mentorship ecosystem.
+
+### 1) Coding Hub
+
+* GitHub API integration for contribution tracking
+* **Coding Duels**
+
+  * weekly challenges
+  * leaderboard system
+
+### 2) Grievance System
+
+* Anonymous complaint submission + routing
+* Categories:
+
+  * Academics
+  * Harassment
+  * Infrastructure
+* Status tracking without exposing identity to intermediate staff
+
+### 3) Mentor Network
+
+* Senior–Junior matching based on:
+
+  * department
+  * skills
+  * interests
+* 1:1 booking system for:
+
+  * career sessions
+  * alumni mentoring
+
+---
+
+# Technical Stack (Updated)
+
+* **Database:** PostgreSQL + Prisma *(new migrations required)*
+* **Storage:** Uploadthing *(notes, photos, assignments)*
+* **Real-time:** Pusher or Socket.io *(announcements + notifications)*
+* **PDF Generation:** `react-pdf` or `puppeteer-core` *(certificates + transcripts)*
+* **Analytics/UI Charts:** `recharts`
+
