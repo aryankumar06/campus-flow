@@ -66,7 +66,7 @@ export default function AdminDashboard() {
   if (loading) return <div className="h-screen flex items-center justify-center">Loading Admin Dashboard...</div>;
 
   return (
-    <div className="space-y-8 pb-12 p-8">
+    <div className="container mx-auto py-12 px-4 space-y-8 pb-12">
       <div>
         <h1 className="text-4xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-muted-foreground mt-2">Manage users, approve organizers, and view platform statistics.</p>

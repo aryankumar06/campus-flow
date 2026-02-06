@@ -7,12 +7,17 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum UserRole {
   STUDENT
-  ORGANIZER
-  ADMIN
+  ORGANIZER // Deprecated, use CLUB_ADMIN
+  ADMIN // System Admin
+  HOD
+  COORDINATOR
+  CLUB_ADMIN
+  FACULTY
 }
 
 enum EventCategory {
@@ -30,8 +35,15 @@ model User {
   role          UserRole  @default(STUDENT)
   isApproved    Boolean   @default(true)
   department    String?
-  year          String?
-  collegeId     String?   // University Roll Number
+  year          String? // e.g. "3"
+  
+  // Profile Fields
+  collegeId     String?   @unique // University Roll Number (Made unique)
+  semester      String?   // e.g. "5"
+  batch         String?   // e.g. "2023-2027"
+  academicSession String? // e.g. "2024-2025"
+  cgpa          Float?
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
@@ -43,6 +55,35 @@ model User {
   complaints      Complaint[]
   attendance      Float     @default(0) // Percentage
   badges          Badge[]
+
+  // Academic Relations
+  enrolledClasses Classroom[] @relation("ClassStudents")
+  managedClasses  Classroom[] @relation("ClassFaculty")
+  
+  // Subject Relations
+  subjects      StudentSubject[]
+}
+
+model StudentSubject {
+  id        String   @id @default(cuid())
+  userId    String
+  subjectId String
+  
+  user      User     @relation(fields: [userId], references: [id])
+  subject   Subject  @relation(fields: [subjectId], references: [id])
+
+  @@unique([userId, subjectId])
+}
+
+model Subject {
+  id          String   @id @default(cuid())
+  name        String   // "Mathematics I"
+  code        String   @unique // "MATH101"
+  department  String   // "CSE"
+  semester    String   // "1" (Target semester)
+  credits     Int      @default(3)
+  
+  students    StudentSubject[]
 }
 
 model Badge {
@@ -109,6 +150,9 @@ model Assignment {
   department  String
   createdAt   DateTime     @default(now())
   submissions Submission[]
+  
+  classroomId String? 
+  classroom   Classroom? @relation(fields: [classroomId], references: [id])
 }
 
 model Submission {
@@ -162,6 +206,39 @@ model Announcement {
   createdAt DateTime @default(now())
 
   club Club? @relation(fields: [clubId], references: [id])
+  
+  classroomId String?
+  classroom   Classroom? @relation(fields: [classroomId], references: [id])
+}
+
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String   // "B.Tech CSE - Section A"
+  section     String?
+  batch       String?  // "2023-2027"
+  facultyId   String
+  
+  faculty     User     @relation("ClassFaculty", fields: [facultyId], references: [id])
+  students    User[]   @relation("ClassStudents")
+  
+  lectures      Lecture[]
+  assignments   Assignment[]
+  announcements Announcement[]
+  
+  createdAt   DateTime @default(now())
+}
+
+model Lecture {
+  id          String   @id @default(cuid())
+  classroomId String
+  dayOfWeek   String   // MONDAY, TUESDAY...
+  startTime   String   // "09:00"
+  endTime     String   // "10:00"
+  subject     String   // "Data Structures"
+  block       String   // "B-Block"
+  roomNo      String   // "302"
+  
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
 }
 
 // --- ACTIVITY TRACKING ---

@@ -58,7 +58,7 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const categories = ["TECHNICAL", "CULTURAL", "SPORTS", "OTHER"];
 
   return (
-    <div className="space-y-8">
+    <div className="container mx-auto py-12 px-4 space-y-8">
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
         <h1 className="text-3xl font-bold">Upcoming Events</h1>
         <div className="flex gap-2 w-full md:w-auto">

@@ -66,7 +66,7 @@ export default function CommunityHubPage() {
 
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="container mx-auto py-12 px-4 space-y-8 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Community Hub</h1>
@@ -175,7 +175,7 @@ export default function CommunityHubPage() {
                     </Card>
                     ))
                 ) : (
-                    <div className="text-center py-10 text-muted-foreground border rounded-lg bg-zinc-50 border-dashed">
+                    <div className="text-center py-10 text-muted-foreground border rounded-lg bg-muted/30 border-dashed">
                         No announcements yet.
                     </div>
                 )}
@@ -222,7 +222,7 @@ export default function CommunityHubPage() {
             </TabsContent>
 
             <TabsContent value="discussions">
-              <div className="h-60 flex flex-col items-center justify-center text-center space-y-4 bg-zinc-50 rounded-lg border border-dashed">
+              <div className="h-60 flex flex-col items-center justify-center text-center space-y-4 bg-muted/30 rounded-lg border border-dashed">
                 <MessageSquare className="h-12 w-12 text-muted-foreground opacity-50" />
                 <div>
                   <h3 className="font-medium">No discussions here yet</h3>

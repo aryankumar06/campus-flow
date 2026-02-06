@@ -73,7 +73,7 @@ export default function ActivityHubPage() {
   if (loading) return <div className="h-screen flex items-center justify-center">Loading Activity Hub...</div>;
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="container mx-auto py-12 px-4 space-y-8 pb-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Activity Hub</h1>
@@ -184,28 +184,28 @@ export default function ActivityHubPage() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="bg-zinc-900 text-white border-none">
+                <Card className="bg-card text-card-foreground border">
                     <CardHeader>
                         <CardTitle className="text-lg flex items-center overflow-hidden">
                             <CreditCard className="w-5 h-5 mr-2" /> Credit Rules
                         </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-2 text-sm text-zinc-400">
-                        <div className="flex justify-between border-b border-zinc-800 pb-1">
+                    <CardContent className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex justify-between border-b pb-1">
                             <span>Event Attendance</span>
-                            <span className="text-white">1pt</span>
+                            <span className="text-foreground">1pt</span>
                         </div>
-                        <div className="flex justify-between border-b border-zinc-800 pb-1">
+                        <div className="flex justify-between border-b pb-1">
                             <span>Organizing Event</span>
-                            <span className="text-white">3pts</span>
+                            <span className="text-foreground">3pts</span>
                         </div>
-                        <div className="flex justify-between border-b border-zinc-800 pb-1">
+                        <div className="flex justify-between border-b pb-1">
                             <span>Volunteering Hour</span>
-                            <span className="text-white">2pts</span>
+                            <span className="text-foreground">2pts</span>
                         </div>
                         <div className="flex justify-between">
                             <span>Workshop Certificate</span>
-                            <span className="text-white">2pts</span>
+                            <span className="text-foreground">2pts</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -260,9 +260,9 @@ export default function ActivityHubPage() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-zinc-50 border-dashed">
+            <Card className="bg-muted/30 border-dashed">
                 <CardContent className="p-6 text-center space-y-4">
-                    <div className="p-4 mx-auto w-fit bg-white rounded-full border shadow-sm">
+                    <div className="p-4 mx-auto w-fit bg-background rounded-full border shadow-sm">
                         <Award className="h-8 w-8 text-primary" />
                     </div>
                     <div>

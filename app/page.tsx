@@ -1,8 +1,17 @@
 import { PricingDemo } from "@/components/pricing-demo";
 import { Footer } from "@/components/ui/footer-section";
 import { FlipLink } from "@/components/ui/flip-links";
+import LandingProductFeatures from "@/components/landing-product-features";
 
-export default function Home() {
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { redirect } from "next/navigation";
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  if (session) {
+    redirect("/academics");
+  }
   return (
     <div className="relative overflow-hidden">
       <div className="container mx-auto px-4 py-12">
@@ -70,6 +79,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+      
+      <LandingProductFeatures />
       
       <PricingDemo />
     </div>

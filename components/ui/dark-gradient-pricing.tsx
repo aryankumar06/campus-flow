@@ -75,8 +75,13 @@ export const PricingCard = ({
           ))}
         </div>
         <Button
-          className="w-full"
-          variant={tier === "Pro" ? "default" : "ghost"}
+          variant="outline"
+          className={cn(
+            "w-full h-11 transition-all duration-300",
+            tier === "Pro" 
+              ? "bg-white text-black hover:bg-zinc-200 border-none shadow-lg shadow-white/10" 
+              : "bg-zinc-900 text-white hover:bg-zinc-800 border border-zinc-800"
+          )}
         >
           {CTA}
         </Button>

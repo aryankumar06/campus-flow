@@ -79,7 +79,7 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center relative overflow-hidden bg-[#030303]">
+    <div className="flex flex-1 items-center justify-center relative overflow-hidden bg-[#030303] py-12">
       {/* Premium Background Elements */}
       <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 rounded-full blur-[120px] animate-pulse" />
       <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[120px]" />

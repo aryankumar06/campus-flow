@@ -22,15 +22,17 @@ export default function AcademicsPage() {
   const [upcomingAssignments, setUpcomingAssignments] = useState<any[]>([]);
   const [totalCredits, setTotalCredits] = useState(0);
   const [examAlert, setExamAlert] = useState<any>(null);
+  const [studentProfile, setStudentProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [assignRes, creditRes, statsRes] = await Promise.all([
+        const [assignRes, creditRes, statsRes, profileRes] = await Promise.all([
           fetch("/api/academics/assignments"),
           fetch("/api/activity/credits"),
-          fetch("/api/academics/stats")
+          fetch("/api/academics/stats"),
+          fetch("/api/profile")
         ]);
         
         if (assignRes.ok) {
@@ -48,6 +50,11 @@ export default function AcademicsPage() {
           setAttendance(data.attendance);
           setExamAlert(data.alert);
         }
+
+        if (profileRes.ok) {
+          const data = await profileRes.json();
+          setStudentProfile(data);
+        }
       } catch (error) {
         console.error("Failed to fetch academics data", error);
       } finally {
@@ -62,14 +69,14 @@ export default function AcademicsPage() {
 
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="container mx-auto py-12 px-4 space-y-8 pb-12">
       <div className="flex justify-between items-end">
         <div>
           <h1 className="text-4xl font-bold tracking-tight">Academic Hub</h1>
           <p className="text-muted-foreground mt-2">Manage your studies, assignments, and attendance in one place.</p>
         </div>
         <Badge variant="outline" className="px-4 py-1 text-sm">
-          Sem 4 | AY 2024-25
+          {studentProfile?.semester ? `Sem ${studentProfile.semester}` : "Sem N/A"} | {studentProfile?.academicSession || "AY 2024-25"}
         </Badge>
       </div>
 
@@ -117,11 +124,15 @@ export default function AcademicsPage() {
             <CardTitle className="text-sm font-medium flex items-center">
               <TrendingUp className="h-4 w-4 mr-2" /> SGPA Trend
             </CardTitle>
-            <CardTitle className="text-3xl">8.4 / 10</CardTitle>
+            <CardTitle className="text-3xl">
+              {studentProfile?.cgpa ? `${studentProfile.cgpa} / 10` : "N/A"}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <Progress value={84} />
-            <p className="text-xs text-muted-foreground mt-2">Previous Semester: 8.2</p>
+            <Progress value={studentProfile?.cgpa ? (studentProfile.cgpa * 10) : 0} />
+            <p className="text-xs text-muted-foreground mt-2">
+              {studentProfile?.cgpa ? "Cumulative Grade Point Average" : "No academic record found"}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -142,7 +153,7 @@ export default function AcademicsPage() {
                 <Card key={assignment.id} className="group hover:border-primary transition-colors">
                     <CardContent className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="p-2 rounded bg-zinc-100 text-zinc-600">
+                        <div className="p-2 rounded bg-muted text-muted-foreground">
                         <Clock className="w-5 h-5" />
                         </div>
                         <div>
@@ -159,7 +170,7 @@ export default function AcademicsPage() {
                 </Card>
                 ))
             ) : (
-                <div className="text-center py-10 text-muted-foreground border rounded-lg bg-zinc-50 border-dashed">
+                <div className="text-center py-10 text-muted-foreground border rounded-lg bg-muted/30 border-dashed">
                     No pending assignments.
                 </div>
             )}
@@ -170,13 +181,13 @@ export default function AcademicsPage() {
               <BookOpen className="h-6 w-6 mr-2" /> Study Resources
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Card className="cursor-pointer hover:bg-zinc-50 transition-colors">
+              <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
                 <CardHeader className="p-4">
                   <CardTitle className="text-base">Subject Notes</CardTitle>
                   <CardDescription>Chapter-wise PDFs for all subjects.</CardDescription>
                 </CardHeader>
               </Card>
-              <Card className="cursor-pointer hover:bg-zinc-50 transition-colors">
+              <Card className="cursor-pointer hover:bg-muted/50 transition-colors">
                 <CardHeader className="p-4">
                   <CardTitle className="text-base">Previous Year Qs</CardTitle>
                   <CardDescription>Final and Sessional exam archives.</CardDescription>
@@ -205,13 +216,13 @@ export default function AcademicsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-zinc-900 text-white">
+          <Card className="bg-card text-card-foreground border">
             <CardHeader>
               <CardTitle className="text-lg">Faculty Consultation</CardTitle>
-              <CardDescription className="text-zinc-400">Available slots for today</CardDescription>
+              <CardDescription className="text-muted-foreground">Available slots for today</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-center py-4 text-zinc-500 text-sm">
+              <div className="text-center py-4 text-muted-foreground text-sm">
                  No faculty slots available right now.
               </div>
             </CardContent>

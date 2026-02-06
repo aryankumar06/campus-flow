@@ -19,6 +19,12 @@ const userSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+
+    // Sanitize empty strings to null
+    if (body.collegeId === "") body.collegeId = null;
+    if (body.department === "") body.department = null;
+    if (body.year === "") body.year = null;
+
     const { name, email, password, role, collegeId, department, year } = userSchema.parse(body);
 
     const existingUser = await db.user.findUnique({

@@ -73,9 +73,12 @@ export function Navbar() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link href="/my-events">My Events</Link>
                 </DropdownMenuItem>
-                {user?.role === "ORGANIZER" && (
+                {["ORGANIZER", "CLUB_ADMIN", "HOD", "ADMIN"].includes(user?.role || "") && (
                   <>
                     <DropdownMenuItem asChild>
                       <Link href="/create-event">Create Event</Link>

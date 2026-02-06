@@ -7,8 +7,8 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user || (session.user as any).role !== "ORGANIZER") {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!session || !session.user || !["CLUB_ADMIN", "HOD", "ADMIN", "ORGANIZER"].includes((session.user as any).role)) {
+      return new NextResponse("Unauthorized", { status: 403 });
     }
 
     const events = await db.event.findMany({

@@ -49,7 +49,7 @@ export default function ManageEventsPage() {
   }, [fetchManagedEvents]);
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-12 px-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Manage Events</h1>
         <Link href="/create-event">
