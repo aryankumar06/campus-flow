@@ -15,7 +15,7 @@ async function main() {
 
     for (const [cid, list] of map.entries()) {
         if (list.length > 1) {
-            console.log(`Duplicate Key '${cid}' found for ${list.length} users: ${list.map(u => u.email).join(', ')}`);
+            console.log(`Duplicate Key '${cid}' found for ${list.length} users: ${list.map((u: any) => u.email).join(', ')}`);
 
             // Keep the first one, nullify others
             for (let i = 1; i < list.length; i++) {
