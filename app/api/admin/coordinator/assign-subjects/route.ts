@@ -64,7 +64,7 @@ export async function POST(req: Request) {
         // Prisma doesn't support 'createMany' for relations easily with 'skipDuplicates', so we use a transaction or loop.
         // Loop is safer for ensuring existence.
         await db.$transaction(
-            students.map(student =>
+            students.map((student: any) =>
                 db.studentSubject.upsert({
                     where: {
                         userId_subjectId: {
