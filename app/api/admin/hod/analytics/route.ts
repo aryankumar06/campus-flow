@@ -26,7 +26,7 @@ export async function GET() {
             select: { attendance: true }
         });
 
-        const totalAttendance = students.reduce((acc, curr) => acc + (curr.attendance || 0), 0);
+        const totalAttendance = students.reduce((acc: number, curr: any) => acc + (curr.attendance || 0), 0);
         const avgAttendance = students.length > 0 ? (totalAttendance / students.length).toFixed(1) : 0;
 
         // 3. Department Distribution
